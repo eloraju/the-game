@@ -2,8 +2,6 @@
 
 Full stack application for Wunderdog to use while playing THE GAME
 
-Don't pay attention to this readme. It contains nothing of value.
-
 ## Get it running
 
 Currently the best way to run this thing is to run 

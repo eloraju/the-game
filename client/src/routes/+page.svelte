@@ -1,6 +1,7 @@
 <script lang="ts">
 import {io} from 'socket.io-client';
 import {Command} from 'server/src/types/types.js'
+import { createGame } from '$lib/socketCommands';
 const socket = io("localhost:3000")
 
 socket.on("connection", (id) => {
@@ -28,9 +29,10 @@ function joinGame() {
   emitMessage(data);
 }
 
-function createGame() {
-  const data = {cmd: Command.CREATE_GAME, data: {gameId: "test"}};
-  emitMessage(data);
+function createGameClick() {
+  createGame({
+    gameId: "test"
+  },socket);
 }
 </script>
 
@@ -38,7 +40,7 @@ function createGame() {
 <div style="display: flex; flex-direction: row; justify-content: start; flex-wrap: wrap; gap: 0.5em">
   <button on:click={ping}>send ping</button>
   <button on:click={joinGame}>join game</button>
-  <button on:click={createGame}>create game</button>
+  <button on:click={createGameClick}>create game</button>
 </div>
 <div style="display: flex; flex-direction: row; justify-content: space-evenly;">
   <div>

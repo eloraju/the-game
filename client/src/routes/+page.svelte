@@ -1,33 +1,44 @@
 <script lang="ts">
- import {io} from 'socket.io-client';
- const socket = io("localhost:3000")
+import {io} from 'socket.io-client';
+import {Command} from 'server/src/types/types.js'
+const socket = io("localhost:3000")
 
-  socket.on("connection", () => {
+socket.on("connection", (id) => {
     requests = [...requests, "Connected"]
-    responses = [...responses, "Connected"]
-  });
+    responses = [...responses, `Connected ${id}`]
+    });
 
-  socket.on("res", (data)=>{
+socket.on("res", (data)=>{
     responses = [...responses, data]
-  })
+    })
 
- let requests: string[] = [];
- let responses: string[] = [];
+let requests: string[] = [];
+let responses: string[] = [];
 
- function ping() {
- requests = [...requests, "ping"];
- socket.emit("req", "ping");
- }
- function joinGame() {
- const data = {cmd: "join", data: {gameId: "test", username: "testing"}};
- requests = [...requests, JSON.stringify(data)];
- socket.emit("req", data);
- }
+function emitMessage(msg: any) {
+  requests = [...requests, JSON.stringify(msg)];
+  socket.emit("req", JSON.stringify(msg));
+}
+
+function ping() {
+  emitMessage({cmd: Command.PING});
+}
+function joinGame() {
+  const data = {cmd: Command.JOIN_GAME, data: {gameId: "test", username: "testing"}};
+  emitMessage(data);
+}
+
+function createGame() {
+  const data = {cmd: Command.CREATE_GAME, data: {gameId: "test"}};
+  emitMessage(data);
+}
 </script>
+
 <body>
 <div style="display: flex; flex-direction: row; justify-content: start; flex-wrap: wrap; gap: 0.5em">
   <button on:click={ping}>send ping</button>
   <button on:click={joinGame}>join game</button>
+  <button on:click={createGame}>create game</button>
 </div>
 <div style="display: flex; flex-direction: row; justify-content: space-evenly;">
   <div>

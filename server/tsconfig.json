@@ -3,8 +3,12 @@
   "include":["src/**/*.ts"],
   "compilerOptions": {
     "outDir": "dist",
-    "module": "ESnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "module": "es2020",
+    "target": "es2020",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
   },
   "ts-node": {
     "esm": true,

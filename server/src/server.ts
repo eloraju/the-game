@@ -1,4 +1,4 @@
-import {Server} from 'socket.io';
+import {Server, Socket} from 'socket.io';
 import {createServer} from 'http';
 import cors from 'cors';
 import express from 'express';
@@ -18,12 +18,17 @@ const io = new Server(httpServer, {
   }
 });
 
+const connections = new Map<string, Socket>();
+
 io.on("connection", (socket)=> {
   console.log(`new client connected`);
   socket.emit("connection", socket.id)
+  connections.set(socket.id, socket);
   socket.on("req", (request)=>{
     console.log(`Request: ${request}`)
     const cmd = JSON.parse(request) as RpcCommand;
+    cmd.connections = connections;
+    cmd.socketId = socket.id;
     socket.emit("res", JSON.stringify(handleRequest(cmd)));
   });
 });

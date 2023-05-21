@@ -9,9 +9,12 @@ Don't pay attention to this readme. It contains nothing of value.
 Currently the best way to run this thing is to run 
 
 ```sh 
+pnpm i -r
 pnpm --filter client build
 pnpm --filter server build
 pnpm --filter server start
 ```
 
-this should get the whole thing running
+This should get the whole thing running at localhost:3000
+
+You'll need to compile and restart the whole thing when you make changes (not hot reloading here).

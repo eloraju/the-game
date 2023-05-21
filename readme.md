@@ -1,8 +1,8 @@
 # The Game
 
-Full stack application for Wunderdog to use while playing THE Game
+Full stack application for Wunderdog to use while playing THE GAME
 
-Don't pay attention to this readme. It contains nothign of value.
+Don't pay attention to this readme. It contains nothing of value.
 
 ## Currently thinking
 

@@ -15,4 +15,4 @@ pnpm --filter server start
 
 This should get the whole thing running at localhost:3000
 
-You'll need to compile and restart the whole thing when you make changes (not hot reloading here).
+You'll need to compile and restart the whole thing when you make changes (no hot reloading here).

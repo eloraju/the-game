@@ -1,0 +1,4 @@
+workspaces:
+  - 'server/*'
+  - 'client/*'
+  - 'shared/*'

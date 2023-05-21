@@ -1,0 +1,89 @@
+<html>
+
+<head>
+  <title>WebSocket Tester</title>
+  <script language="javascript" type="text/javascript" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+  <script language="javascript" type="module">
+    var ping;
+
+
+    var websocket = io("ws://localhost:3000");
+
+    websocket.on("connection", function (evt) {
+      onOpen(evt)
+      var ping = setInterval(function () { doPing() }, 1000);
+    });
+
+    console.log("should connect soon");
+
+    jQuery(function ($) {
+      websocket.on("res", onMessage);
+
+      $('#disconnect').click(doDisconnect);
+      $('#send').click(function () {
+        doSend( $('#message').val() )
+      });
+
+
+      function doDisconnect() {
+        websocket.close();
+      }
+
+      function onOpen(evt) {
+        writeToScreen("CONNECTED");
+      }
+
+      function onClose(evt) {
+        writeToScreen("DISCONNECTED");
+      }
+
+      function onMessage(evt) {
+        console.log(evt)
+        if ((evt.data != "ping") && (evt.data != "pong")) {
+          writeToScreen('RECIEVED: ' + evt);
+        }
+      }
+
+      function onError(evt) {
+        writeToScreen('ERROR:' + evt.data);
+      }
+
+      function doSend(message) {
+        if (message != "ping") {
+          writeToScreen('SENT: ' + message);
+        }
+
+        websocket.emit("req",message);
+      }
+
+      function writeToScreen(message) {
+        $('#output').append(message + '<br /><br />');
+      }
+
+      function doPing() {
+        if (websocket != "undefined") {
+          doSend("ping");
+        }
+      }
+
+    });
+  </script>
+</head>
+
+<body>
+
+  <h2>WebSocket Tester</h2>
+  <br />
+  <button id="connect">Connect</button>
+  <button id="disconnect">Disconnect</button>
+  <br />
+  <br />Message:
+  <input type="text" id="message" value="" />
+  <button id="send">Send</button>
+  <br />
+  <br />Output:
+  <br /> <pre><div id="output"></div></pre>
+
+</body>
+</html>

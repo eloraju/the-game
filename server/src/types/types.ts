@@ -1,5 +1,3 @@
-import { Socket } from "socket.io";
-
 export enum Command {
   PING,
   CREATE_GAME,

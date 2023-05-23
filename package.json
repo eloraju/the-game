@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "installDeps": "pnpm -r install",
-    "start": "node dist/server/server.js"
+    "start": "pnpm --filter server start"
   },
   "keywords": [],
   "author": "",

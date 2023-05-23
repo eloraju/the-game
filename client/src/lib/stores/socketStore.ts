@@ -1,6 +1,5 @@
-import {readable, writable} from "svelte/store";
+import {writable} from "svelte/store";
 import {io} from 'socket.io-client';
-import { create } from "domain";
 import {
 	Command,
 	type AddPromptData,

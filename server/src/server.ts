@@ -1,6 +1,5 @@
 import {Server, Socket} from 'socket.io';
 import {createServer} from 'http';
-import cors from 'cors';
 import express from 'express';
 import { handleRequest } from './gameHandler.js';
 //@ts-ignore

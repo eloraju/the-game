@@ -1,5 +1,6 @@
 import * as E from "fp-ts/lib/Either.js";
 import { Command, JoinGameData, RpcCommand, CreateGameData, Game, GameState, Player, BuzzData, CreateGameCommand, BuzzCommand, JoinGameCommand, AddPromptCommand, RemovePromptData, ResetBuzzersCommand, RemovePromptCommand } from "./types/types.js";
+import { Socket } from "socket.io";
 
 // in memory store for games
 const games = new Map<string, Game>();
@@ -24,7 +25,7 @@ export function playerIsInGame(gameId: string, playerId: string): boolean {
   return Boolean(game) && game!.players.has(playerId);
 }
 
-export function joinGame({data, socketId, connections}: JoinGameCommand): E.Either<string, string> {
+export function joinGame({data}: JoinGameCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   const game = games.get(data.gameId);
   if(!game) return E.left("invalid game id");
 
@@ -36,7 +37,7 @@ export function joinGame({data, socketId, connections}: JoinGameCommand): E.Eith
   return E.right("ok");
 }
 
-export function createGame({data, socketId}:CreateGameCommand): E.Either<string, string> {
+export function createGame({data}:CreateGameCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   if(games.get(data.gameId)) return E.left("Game already exists");
   games.set(data.gameId, {
     adminId: socketId,
@@ -51,28 +52,28 @@ export function createGame({data, socketId}:CreateGameCommand): E.Either<string,
   return E.right("ok");
 }
 
-export function buzz({data, socketId, connections}: BuzzCommand): E.Either<string, string> {
+export function buzz({data}: BuzzCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   return E.left("Not implemeted");
 }
-export function addPrompt({data, socketId, connections}: AddPromptCommand): E.Either<string, string> {
+export function addPrompt({data}: AddPromptCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   return E.left("Not implemeted");
 }
-export function removePrompt({data, socketId, connections}: RemovePromptCommand): E.Either<string, string> {
+export function removePrompt({data}: RemovePromptCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   return E.left("Not implemeted");
 }
-export function resetBuzzers({data, socketId, connections}: ResetBuzzersCommand): E.Either<string, string> {
+export function resetBuzzers({data}: ResetBuzzersCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   return E.left("Not implemeted");
 }
 
-export function handleRequest(command: RpcCommand): E.Either<string, string> {
+export function handleRequest(command: RpcCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   switch(command.cmd) {
     case Command.PING: return ping();
-    case Command.CREATE_GAME: return createGame(command);
-    case Command.JOIN_GAME: return joinGame(command);
-    case Command.BUZZ: return buzz(command);
-    case Command.ADD_PROMPT: return addPrompt(command);
-    case Command.REMOVE_PROMPT: return removePrompt(command);
-    case Command.RESET_BUZZERS: return resetBuzzers(command);
+    case Command.CREATE_GAME: return createGame(command, socketId, connections);
+    case Command.JOIN_GAME: return joinGame(command, socketId, connections);
+    case Command.BUZZ: return buzz(command, socketId, connections);
+    case Command.ADD_PROMPT: return addPrompt(command, socketId, connections);
+    case Command.REMOVE_PROMPT: return removePrompt(command, socketId, connections);
+    case Command.RESET_BUZZERS: return resetBuzzers(command, socketId, connections);
     default: return E.left("Unknown command");
   }
 }

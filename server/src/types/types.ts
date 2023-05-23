@@ -1,4 +1,3 @@
-import { string } from "fp-ts";
 import { Socket } from "socket.io";
 
 export enum Command {
@@ -61,8 +60,6 @@ export interface  NextPromptData {
 
 interface ICommand<T> {
   cmd: Command;
-  socketId: string;
-  connections: Map<string, Socket>;
   data: T;
 }
 
@@ -87,16 +84,26 @@ export interface RemovePromptCommand extends ICommand<RemovePromptData> {
 export interface NextPromptCpmmand extends ICommand<NextPromptData> {
   cmd: Command.NEXT_PROMPT;
 }
-export interface PingCommand extends ICommand<undefined> {
+export interface PingCommand extends Omit<ICommand<undefined>, "data"> {
   cmd: Command.PING;
 }
 
 
-export type RpcCommand = PingCommand |
-  CreateGameCommand | 
-  JoinGameCommand | 
-  BuzzCommand |
-  ResetBuzzersCommand |
-  AddPromptCommand |
-  RemovePromptCommand |
-  NextPromptCpmmand
+export type RpcCommand =
+  | PingCommand
+  | CreateGameCommand
+  | JoinGameCommand
+  | BuzzCommand
+  | ResetBuzzersCommand
+  | AddPromptCommand
+  | RemovePromptCommand
+  | NextPromptCpmmand;
+
+export type RpcCommandData =
+  | CreateGameData
+  | JoinGameData
+  | BuzzCommand
+  | ResetBuzzersData
+  | AddPromptData
+  | RemovePromptData
+  | NextPromptCpmmand;

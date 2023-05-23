@@ -27,9 +27,7 @@ io.on("connection", (socket)=> {
   socket.on("req", (request)=>{
     console.log(`Request: ${request}`)
     const cmd = JSON.parse(request) as RpcCommand;
-    cmd.connections = connections;
-    cmd.socketId = socket.id;
-    socket.emit("res", JSON.stringify(handleRequest(cmd)));
+    socket.emit("res", JSON.stringify(handleRequest(cmd, socket.id, connections)));
   });
 });
 app.use(handler);

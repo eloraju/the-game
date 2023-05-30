@@ -7,61 +7,80 @@ export enum Command {
   ADD_PROMPT,
   REMOVE_PROMPT,
   RESET_BUZZERS,
-  NEXT_PROMPT
+  NEXT_PROMPT,
+  PRINT_GAME,
+  ADD_POINTS,
+  DEDUCT_POINTS,
+  SET_POINTS,
+  START_GAME
+}
+
+export enum Event {
+  BUZZ,
+  PLAYER_JOIN
 }
 
 export enum GameState {
   LOBBY, // waiting for players to join
-    IN_PROGRESS, // Prompting and buzzing
+  IN_PROGRESS, // Prompting and buzzing
   ENDED
 }
 
 export type Player = string;
 
+export interface Response {
+  ack: number;
+  data: any;
+  err: boolean;
+}
+
 export interface Game {
   id: string;
   state: GameState;
-  prompts: any[]; // TODO: Create interface for these
-    curRound: number;
   players: Set<Player>;
-  buzzList: Player[];
+  buzzList: Set<Player>;
   points: Map<Player, number>;
-  adminId: string;
+  adminSocketId: string;
 }
 
-export interface CreateGameData {
-  gameId: string;
-}
 export interface JoinGameData {
   player: string;
-  gameId: string;
 }
 export interface BuzzData {
   player: Player;
-  gameId: string;
-}
-export interface ResetBuzzersData {
-  gameId: string
 }
 export interface  AddPromptData {
-  gameId: string;
   prompt: string; // url or text
   type: "url" | "text";
 }
-export interface  RemovePromptData {
-  gameId: string;
+export interface RemovePromptData {
   promptId: string;
 }
-export interface  NextPromptData {
-  gameId: string;
+
+export interface AddPointsData {
+  player: string;
+  amount: number;
+}
+export interface DeductPointsData {
+  player: string;
+  amount: number;
+}
+
+export interface SetPointsData {
+  player: string;
+  amount: number;
 }
 
 interface ICommand<T> {
   cmd: Command;
+  ack: number;
+  gameId: string;
   data: T;
 }
 
-export interface CreateGameCommand extends ICommand<CreateGameData> {
+type ICommandNoData = Omit<ICommand<undefined>, "data">
+
+export interface CreateGameCommand extends ICommandNoData {
   cmd: Command.CREATE_GAME;
 }
 export interface JoinGameCommand extends ICommand<JoinGameData> {
@@ -70,7 +89,7 @@ export interface JoinGameCommand extends ICommand<JoinGameData> {
 export interface BuzzCommand extends ICommand<BuzzData> {
   cmd: Command.BUZZ;
 }
-export interface ResetBuzzersCommand extends ICommand<ResetBuzzersData> {
+export interface ResetBuzzersCommand extends ICommandNoData {
   cmd: Command.RESET_BUZZERS;
 }
 export interface AddPromptCommand extends ICommand<AddPromptData> {
@@ -79,13 +98,49 @@ export interface AddPromptCommand extends ICommand<AddPromptData> {
 export interface RemovePromptCommand extends ICommand<RemovePromptData> {
   cmd: Command.REMOVE_PROMPT;
 }
-export interface NextPromptCpmmand extends ICommand<NextPromptData> {
+export interface NextPromptCpmmand extends ICommandNoData {
   cmd: Command.NEXT_PROMPT;
 }
-export interface PingCommand extends Omit<ICommand<undefined>, "data"> {
+export interface AddPointsCommand extends ICommand<AddPointsData> {
+  cmd: Command.ADD_POINTS;
+}
+export interface DeductPointsCommand extends ICommand<DeductPointsData> {
+  cmd: Command.DEDUCT_POINTS;
+}
+export interface SetPointsCommand extends ICommand<SetPointsData> {
+  cmd: Command.SET_POINTS;
+}
+export interface PingCommand extends ICommandNoData {
   cmd: Command.PING;
+} 
+
+export interface StartCommand extends ICommandNoData {
+  cmd: Command.START_GAME;
+}
+export interface PrintCommand extends ICommandNoData {
+  cmd: Command.PRINT_GAME;
 }
 
+interface IEvent<T> {
+  event: Event;
+  data: T
+}
+
+export interface BuzzEvent extends IEvent<string[]> {
+  event: Event.BUZZ
+}
+
+export interface PointsData {
+  player: string;
+  points: number;
+}
+export interface JointEvent extends IEvent<PointsData[]> {
+  event: Event.PLAYER_JOIN
+}
+
+export type RpcEvent = 
+  | BuzzEvent
+  | JointEvent
 
 export type RpcCommand =
   | PingCommand
@@ -93,15 +148,15 @@ export type RpcCommand =
   | JoinGameCommand
   | BuzzCommand
   | ResetBuzzersCommand
-  | AddPromptCommand
-  | RemovePromptCommand
-  | NextPromptCpmmand;
+  | AddPointsCommand
+  | DeductPointsCommand
+  | SetPointsCommand
+  | StartCommand
+  | PrintCommand;
 
 export type RpcCommandData =
-  | CreateGameData
   | JoinGameData
   | BuzzCommand
-  | ResetBuzzersData
   | AddPromptData
   | RemovePromptData
   | NextPromptCpmmand;

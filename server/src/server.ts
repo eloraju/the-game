@@ -4,7 +4,8 @@ import express from 'express';
 import { handleRequest } from './gameHandler.js';
 //@ts-ignore
 import { handler } from 'client/build/handler.js';
-import { RpcCommand } from './types/types';
+import { Response, RpcCommand } from './types/types';
+import { match } from 'fp-ts/lib/Either.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -26,7 +27,15 @@ io.on("connection", (socket)=> {
   socket.on("req", (request)=>{
     console.log(`Request: ${request}`)
     const cmd = JSON.parse(request) as RpcCommand;
-    socket.emit("res", JSON.stringify(handleRequest(cmd, socket.id, connections)));
+    const data = handleRequest(cmd, socket.id, connections);
+    // well this is ugly... must get to ipmlementing fp-ts at some point....
+    let response: Response = match(
+      (error)=>({ack: cmd.ack, data: error, err:true}),
+      (result)=>({ack: cmd.ack, data: result, err: false})
+      )(data)
+
+    console.log("Response:", JSON.stringify(response))
+    socket.emit("res", JSON.stringify(response))
   });
 });
 app.use(handler);

@@ -7,7 +7,8 @@ export enum Command {
   ADD_PROMPT,
   REMOVE_PROMPT,
   RESET_BUZZERS,
-  NEXT_PROMPT
+  NEXT_PROMPT,
+  PRINT_GAME
 }
 
 export enum GameState {
@@ -17,6 +18,11 @@ export enum GameState {
 }
 
 export type Player = string;
+
+export interface Response {
+  ack: number;
+  data: any;
+}
 
 export interface Game {
   id: string;
@@ -29,39 +35,30 @@ export interface Game {
   adminId: string;
 }
 
-export interface CreateGameData {
-  gameId: string;
-}
 export interface JoinGameData {
   player: string;
-  gameId: string;
 }
 export interface BuzzData {
   player: Player;
-  gameId: string;
-}
-export interface ResetBuzzersData {
-  gameId: string
 }
 export interface  AddPromptData {
-  gameId: string;
   prompt: string; // url or text
   type: "url" | "text";
 }
 export interface  RemovePromptData {
-  gameId: string;
   promptId: string;
-}
-export interface  NextPromptData {
-  gameId: string;
 }
 
 interface ICommand<T> {
   cmd: Command;
+  gameId: string
+  ack: number;
   data: T;
 }
 
-export interface CreateGameCommand extends ICommand<CreateGameData> {
+type ICommandNoData = Omit<ICommand<undefined>, "data">
+
+export interface CreateGameCommand extends ICommandNoData {
   cmd: Command.CREATE_GAME;
 }
 export interface JoinGameCommand extends ICommand<JoinGameData> {
@@ -70,7 +67,7 @@ export interface JoinGameCommand extends ICommand<JoinGameData> {
 export interface BuzzCommand extends ICommand<BuzzData> {
   cmd: Command.BUZZ;
 }
-export interface ResetBuzzersCommand extends ICommand<ResetBuzzersData> {
+export interface ResetBuzzersCommand extends ICommandNoData {
   cmd: Command.RESET_BUZZERS;
 }
 export interface AddPromptCommand extends ICommand<AddPromptData> {
@@ -79,13 +76,16 @@ export interface AddPromptCommand extends ICommand<AddPromptData> {
 export interface RemovePromptCommand extends ICommand<RemovePromptData> {
   cmd: Command.REMOVE_PROMPT;
 }
-export interface NextPromptCpmmand extends ICommand<NextPromptData> {
+export interface NextPromptCpmmand extends ICommandNoData {
   cmd: Command.NEXT_PROMPT;
 }
-export interface PingCommand extends Omit<ICommand<undefined>, "data"> {
+export interface PingCommand extends ICommandNoData {
   cmd: Command.PING;
-}
+} 
 
+export interface PrintCommand extends ICommandNoData {
+  cmd: Command.PRINT_GAME;
+}
 
 export type RpcCommand =
   | PingCommand
@@ -95,13 +95,12 @@ export type RpcCommand =
   | ResetBuzzersCommand
   | AddPromptCommand
   | RemovePromptCommand
-  | NextPromptCpmmand;
+  | NextPromptCpmmand
+  | PrintCommand;
 
 export type RpcCommandData =
-  | CreateGameData
   | JoinGameData
   | BuzzCommand
-  | ResetBuzzersData
   | AddPromptData
   | RemovePromptData
   | NextPromptCpmmand;

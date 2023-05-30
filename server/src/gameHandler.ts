@@ -65,6 +65,11 @@ export function resetBuzzers({data}: ResetBuzzersCommand, socketId: string, conn
   return E.left("Not implemeted");
 }
 
+export function print(command: RpcCommand) {
+  console.log(JSON.stringify(games.get(command.gameId)));
+  return E.right("ok")
+}
+
 export function handleRequest(command: RpcCommand, socketId: string, connections: Map<string, Socket>): E.Either<string, string> {
   switch(command.cmd) {
     case Command.PING: return ping();
@@ -74,6 +79,7 @@ export function handleRequest(command: RpcCommand, socketId: string, connections
     case Command.ADD_PROMPT: return addPrompt(command, socketId, connections);
     case Command.REMOVE_PROMPT: return removePrompt(command, socketId, connections);
     case Command.RESET_BUZZERS: return resetBuzzers(command, socketId, connections);
+    case Command.PRINT_GAME: return print(command);
     default: return E.left("Unknown command");
   }
 }

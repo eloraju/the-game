@@ -8,12 +8,21 @@ export enum Command {
   REMOVE_PROMPT,
   RESET_BUZZERS,
   NEXT_PROMPT,
-  PRINT_GAME
+  PRINT_GAME,
+  ADD_POINTS,
+  DEDUCT_POINTS,
+  SET_POINTS,
+  START_GAME
+}
+
+export enum Event {
+  BUZZ,
+  PLAYER_JOIN
 }
 
 export enum GameState {
   LOBBY, // waiting for players to join
-    IN_PROGRESS, // Prompting and buzzing
+  IN_PROGRESS, // Prompting and buzzing
   ENDED
 }
 
@@ -22,17 +31,16 @@ export type Player = string;
 export interface Response {
   ack: number;
   data: any;
+  err: boolean;
 }
 
 export interface Game {
   id: string;
   state: GameState;
-  prompts: any[]; // TODO: Create interface for these
-    curRound: number;
   players: Set<Player>;
-  buzzList: Player[];
+  buzzList: Set<Player>;
   points: Map<Player, number>;
-  adminId: string;
+  adminSocketId: string;
 }
 
 export interface JoinGameData {
@@ -45,14 +53,28 @@ export interface  AddPromptData {
   prompt: string; // url or text
   type: "url" | "text";
 }
-export interface  RemovePromptData {
+export interface RemovePromptData {
   promptId: string;
+}
+
+export interface AddPointsData {
+  player: string;
+  amount: number;
+}
+export interface DeductPointsData {
+  player: string;
+  amount: number;
+}
+
+export interface SetPointsData {
+  player: string;
+  amount: number;
 }
 
 interface ICommand<T> {
   cmd: Command;
-  gameId: string
   ack: number;
+  gameId: string;
   data: T;
 }
 
@@ -79,13 +101,46 @@ export interface RemovePromptCommand extends ICommand<RemovePromptData> {
 export interface NextPromptCpmmand extends ICommandNoData {
   cmd: Command.NEXT_PROMPT;
 }
+export interface AddPointsCommand extends ICommand<AddPointsData> {
+  cmd: Command.ADD_POINTS;
+}
+export interface DeductPointsCommand extends ICommand<DeductPointsData> {
+  cmd: Command.DEDUCT_POINTS;
+}
+export interface SetPointsCommand extends ICommand<SetPointsData> {
+  cmd: Command.SET_POINTS;
+}
 export interface PingCommand extends ICommandNoData {
   cmd: Command.PING;
 } 
 
+export interface StartCommand extends ICommandNoData {
+  cmd: Command.START_GAME;
+}
 export interface PrintCommand extends ICommandNoData {
   cmd: Command.PRINT_GAME;
 }
+
+interface IEvent<T> {
+  event: Event;
+  data: T
+}
+
+export interface BuzzEvent extends IEvent<string[]> {
+  event: Event.BUZZ
+}
+
+export interface PointsData {
+  player: string;
+  points: number;
+}
+export interface JointEvent extends IEvent<PointsData[]> {
+  event: Event.PLAYER_JOIN
+}
+
+export type RpcEvent = 
+  | BuzzEvent
+  | JointEvent
 
 export type RpcCommand =
   | PingCommand
@@ -93,9 +148,10 @@ export type RpcCommand =
   | JoinGameCommand
   | BuzzCommand
   | ResetBuzzersCommand
-  | AddPromptCommand
-  | RemovePromptCommand
-  | NextPromptCpmmand
+  | AddPointsCommand
+  | DeductPointsCommand
+  | SetPointsCommand
+  | StartCommand
   | PrintCommand;
 
 export type RpcCommandData =

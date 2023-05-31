@@ -1,3 +1,5 @@
+import { Socket } from "socket.io";
+
 export enum Command {
   PING,
   CREATE_GAME,
@@ -12,18 +14,18 @@ export enum Command {
   ADD_POINTS,
   DEDUCT_POINTS,
   SET_POINTS,
-  START_GAME
+  START_GAME,
 }
 
 export enum Event {
   BUZZ,
-  PLAYER_JOIN
+  PLAYER_JOIN,
 }
 
 export enum GameState {
   LOBBY, // waiting for players to join
   IN_PROGRESS, // Prompting and buzzing
-  ENDED
+  ENDED,
 }
 
 export type Player = string;
@@ -43,13 +45,22 @@ export interface Game {
   adminSocketId: string;
 }
 
+export type GameMap = Map<string, Game>;
+
+export interface Context {
+  adminSocket: Socket;
+  connections: Map<string, Socket>;
+  game: Game;
+  socketId: string;
+}
+
 export interface JoinGameData {
   player: string;
 }
 export interface BuzzData {
   player: Player;
 }
-export interface  AddPromptData {
+export interface AddPromptData {
   prompt: string; // url or text
   type: "url" | "text";
 }
@@ -78,7 +89,7 @@ interface ICommand<T> {
   data: T;
 }
 
-type ICommandNoData = Omit<ICommand<undefined>, "data">
+type ICommandNoData = Omit<ICommand<undefined>, "data">;
 
 export interface CreateGameCommand extends ICommandNoData {
   cmd: Command.CREATE_GAME;
@@ -112,7 +123,7 @@ export interface SetPointsCommand extends ICommand<SetPointsData> {
 }
 export interface PingCommand extends ICommandNoData {
   cmd: Command.PING;
-} 
+}
 
 export interface StartCommand extends ICommandNoData {
   cmd: Command.START_GAME;
@@ -123,11 +134,11 @@ export interface PrintCommand extends ICommandNoData {
 
 interface IEvent<T> {
   event: Event;
-  data: T
+  data: T;
 }
 
 export interface BuzzEvent extends IEvent<string[]> {
-  event: Event.BUZZ
+  event: Event.BUZZ;
 }
 
 export interface PointsData {
@@ -135,12 +146,10 @@ export interface PointsData {
   points: number;
 }
 export interface JointEvent extends IEvent<PointsData[]> {
-  event: Event.PLAYER_JOIN
+  event: Event.PLAYER_JOIN;
 }
 
-export type RpcEvent = 
-  | BuzzEvent
-  | JointEvent
+export type RpcEvent = BuzzEvent | JointEvent;
 
 export type RpcCommand =
   | PingCommand

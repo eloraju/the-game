@@ -55,19 +55,38 @@
 		<button class="btn" on:click={client.startGame}>Start game</button>
 		<button class="btn" on:click={client.resetBuzzer}>Reset buzzers</button>
 		<div class="flex flex-col gap-2">
-      {#if pointList}
-			{#each pointList as playerPoints}
-				<div class="flex flex-row gap-2">
-          <div>{playerPoints.player}</div>
-          <div>{playerPoints.points}</div>
-          <div>
-                    <button class="btn" on:click={() => client.addPoints(playerPoints.player, 1)}>Add point</button>
-                    <button class="btn" on:click={() => client.deductPoints(playerPoints.player, 1)}>Deduct point</button>
-          </div>
-        </div>
-			{/each}
-        
-      {/if}
+			{#if pointList}
+				<div class="overflow-x-auto">
+					<table class="table w-full">
+						<!-- head -->
+						<thead>
+							<tr>
+								<th />
+								<th>Player</th>
+								<th>Points</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each pointList as playerPoints, index}
+								<tr>
+									<th>{index + 1}</th>
+									<td>{playerPoints.player}</td>
+									<td>{playerPoints.points}</td>
+									<td>
+										<button class="btn btn-sm" on:click={() => client.addPoints(playerPoints.player, 1)}
+											>Add point</button
+										>
+										<button class="btn btn-sm" on:click={() => client.deductPoints(playerPoints.player, 1)}
+											>Deduct point</button
+										>
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
 		</div>
 	{:else if role === 'player'}
 		<p>player you are :)</p>

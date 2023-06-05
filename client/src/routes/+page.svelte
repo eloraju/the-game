@@ -1,12 +1,23 @@
 <script lang="ts">
 	import { client, points } from '$lib/stores/socketStore';
+	import buzz from '$lib/assets/buzzer.wav';
 	import type { PointsData } from 'server/src/types/types';
+	import { onMount } from 'svelte';
 
 	let role: string;
 	let pointList: PointsData[];
+	let currentlyPlaying = false;
 
 	client.onRoleReceived((r) => (role = r));
 	points.subscribe((p) => (pointList = p));
+
+	onMount(() => {
+		let buzzer = new Audio(buzz);
+		client.onBuzzerFired((_) => {
+			buzzer.volume = 1;
+			buzzer.play();
+		});
+	});
 
 	function createGame() {
 		client.createGame(gameId);
@@ -74,10 +85,13 @@
 									<td>{playerPoints.player}</td>
 									<td>{playerPoints.points}</td>
 									<td>
-										<button class="btn btn-sm" on:click={() => client.addPoints(playerPoints.player, 1)}
-											>Add point</button
+										<button
+											class="btn btn-sm"
+											on:click={() => client.addPoints(playerPoints.player, 1)}>Add point</button
 										>
-										<button class="btn btn-sm" on:click={() => client.deductPoints(playerPoints.player, 1)}
+										<button
+											class="btn btn-sm"
+											on:click={() => client.deductPoints(playerPoints.player, 1)}
 											>Deduct point</button
 										>
 									</td>

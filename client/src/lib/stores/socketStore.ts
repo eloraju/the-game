@@ -146,5 +146,6 @@ export const client = {
 		mutatePoints(Command.DEDUCT_POINTS, player, amount),
 	setPoints: (player: string, amount: number) => mutatePoints(Command.SET_POINTS, player, amount),
 	startGame: () => startGame(),
-	onRoleReceived: role.subscribe
+	onRoleReceived: role.subscribe,
+	onBuzzerFired: buzzList.subscribe
 };

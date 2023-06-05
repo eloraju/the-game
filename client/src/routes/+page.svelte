@@ -1,21 +1,24 @@
 <script lang="ts">
 	import { client, points } from '$lib/stores/socketStore';
 	import buzz from '$lib/assets/buzzer.wav';
-	import type { PointsData } from 'server/src/types/types';
+	import type { Player, PointsData } from 'server/src/types/types';
 	import { onMount } from 'svelte';
 
 	let role: string;
-	let pointList: PointsData[];
-	let currentlyPlaying = false;
+	let pointList: PointsData[] = [];
+	let buzzList: Player[] = [];
 
 	client.onRoleReceived((r) => (role = r));
 	points.subscribe((p) => (pointList = p));
 
 	onMount(() => {
 		let buzzer = new Audio(buzz);
-		client.onBuzzerFired((_) => {
-			buzzer.volume = 1;
-			buzzer.play();
+		client.onBuzzerFired((buzzed) => {
+			if (buzzed.length > 0) {
+				buzzer.volume = 1;
+				buzzer.play();
+			}
+			buzzList = buzzed;
 		});
 	});
 
@@ -65,20 +68,19 @@
 		<button class="btn" on:click={printGame}>Print game</button>
 		<button class="btn" on:click={client.startGame}>Start game</button>
 		<button class="btn" on:click={client.resetBuzzer}>Reset buzzers</button>
-		<div class="flex flex-col gap-2">
-			{#if pointList}
-				<div class="overflow-x-auto">
-					<table class="table w-full">
-						<!-- head -->
-						<thead>
-							<tr>
-								<th />
-								<th>Player</th>
-								<th>Points</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
+		<div class="flex flex-row gap-2 items-stretch">
+			<div class="overflow-x-auto">
+				<table class="table flex-1">
+					<thead>
+						<tr>
+							<th />
+							<th>Player</th>
+							<th>Points</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#if pointList && pointList.length > 0}
 							{#each pointList as playerPoints, index}
 								<tr>
 									<th>{index + 1}</th>
@@ -97,10 +99,30 @@
 									</td>
 								</tr>
 							{/each}
-						</tbody>
-					</table>
-				</div>
-			{/if}
+						{/if}
+					</tbody>
+				</table>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="table">
+					<thead>
+						<tr>
+							<th />
+							<th>Buzzers</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#if buzzList && buzzList.length > 0}
+							{#each buzzList as player, index}
+								<tr>
+									<th>{index + 1}</th>
+									<td>{player}</td>
+								</tr>
+							{/each}
+						{/if}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	{:else if role === 'player'}
 		<p>player you are :)</p>

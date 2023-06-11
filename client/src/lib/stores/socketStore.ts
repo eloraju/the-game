@@ -16,7 +16,9 @@ import {
 	Event,
 	type StartCommand,
 	type PointsData,
-	type JointEvent
+	type JointEvent,
+	type GetGameCommand,
+	type Game
 } from 'server/src/types/types';
 import { noop } from 'svelte/internal';
 
@@ -25,8 +27,9 @@ const socketClient = io();
 export const requests = writable<string[]>([]);
 export const responses = writable<string[]>([]);
 export const role = writable<'player' | 'admin'>();
-export const points = writable<PointsData[]>();
+export const points = writable<PointsData[]>([]);
 export const buzzList = writable<string[]>([]);
+export const gameData = writable<Game>();
 
 // TODO: Create type for all responses
 export const latestMessage = writable<any | null>(null);
@@ -134,6 +137,11 @@ function startGame() {
 	emit(req);
 }
 
+function getGame(gameId: string) {
+	const req: GetGameCommand = {ack, cmd: Command.GET_GAME, gameId};
+	emit(req, res => gameData.set(res.data));
+}
+
 export const client = {
 	ping: () => emit({ cmd: Command.PING, gameId: 'none', ack }),
 	buzz: () => buzz(),
@@ -145,6 +153,7 @@ export const client = {
 	deductPoints: (player: string, amount: number) =>
 		mutatePoints(Command.DEDUCT_POINTS, player, amount),
 	setPoints: (player: string, amount: number) => mutatePoints(Command.SET_POINTS, player, amount),
+	getGame: (gameId: string) => getGame(gameId),
 	startGame: () => startGame(),
 	onRoleReceived: role.subscribe,
 	onBuzzerFired: buzzList.subscribe

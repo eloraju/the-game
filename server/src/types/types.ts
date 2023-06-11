@@ -15,6 +15,7 @@ export enum Command {
   DEDUCT_POINTS,
   SET_POINTS,
   START_GAME,
+  GET_GAME
 }
 
 export enum Event {
@@ -94,6 +95,9 @@ type ICommandNoData = Omit<ICommand<undefined>, "data">;
 export interface CreateGameCommand extends ICommandNoData {
   cmd: Command.CREATE_GAME;
 }
+export interface GetGameCommand extends ICommandNoData {
+  cmd: Command.GET_GAME;
+}
 export interface JoinGameCommand extends ICommand<JoinGameData> {
   cmd: Command.JOIN_GAME;
 }
@@ -161,7 +165,8 @@ export type RpcCommand =
   | DeductPointsCommand
   | SetPointsCommand
   | StartCommand
-  | PrintCommand;
+  | PrintCommand
+  | GetGameCommand;
 
 export type RpcCommandData =
   | JoinGameData

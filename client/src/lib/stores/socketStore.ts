@@ -11,7 +11,6 @@ import {
 	type DeductPointsCommand,
 	type SetPointsCommand,
 	type StartCommand,
-	type GetGameCommand,
 	type UpdateForUI,
 	type EndGameCommand
 } from 'server/src/types/types';
@@ -121,19 +120,9 @@ function startGame() {
 	emit(req);
 }
 
-function getGame(gameId: string) {
-	const req: GetGameCommand = { cmd: Command.GET_GAME, gameId };
-	emit(req, (res) => gameData.set(res.data));
-}
-
 function endGame() {
 	const req: EndGameCommand = { cmd: Command.END_GAME, gameId: currentGame.gameId };
 	emit(req);
-}
-
-function getGame(gameId: string) {
-	const req: GetGameCommand = {ack, cmd: Command.GET_GAME, gameId};
-	emit(req, res => gameData.set(res.data));
 }
 
 export const client = {
@@ -149,7 +138,6 @@ export const client = {
 	deductPoints: (player: string, amount: number) =>
 		mutatePoints(Command.DEDUCT_POINTS, player, amount),
 	setPoints: (player: string, amount: number) => mutatePoints(Command.SET_POINTS, player, amount),
-	getGame,
 	startGame,
 	onRoleReceived: role.subscribe
 };

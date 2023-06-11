@@ -17,7 +17,6 @@ export enum Command {
   START_GAME,
   GET_GAME,
   END_GAME
-
 }
 
 export enum Event {

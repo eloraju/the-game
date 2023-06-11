@@ -21,6 +21,16 @@ export function getGame(gameId: string): E.Either<string, Game> {
   return E.fromNullable("No game found")(games.get(gameId));
 }
 
+export function gameExists(gameId: string): boolean {
+  console.log(games.get(gameId))
+  console.log(Array.from(games.keys()))
+  return Boolean(games.get(gameId))
+}
+
+export function getGame(gameId: string): E.Either<string, Game> {
+  return E.fromNullable("No game found")(games.get(gameId));
+}
+
 export function ping(): E.Either<string, string> {
   return E.right("pong");
 }

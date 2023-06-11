@@ -14,6 +14,16 @@ import { joinGame, buzz } from "./commands/player.js";
 // in memory store for games
 const games = new Map<string, Game>();
 
+export function gameExists(gameId: string): boolean {
+  console.log(games.get(gameId))
+  console.log(Array.from(games.keys()))
+  return Boolean(games.get(gameId))
+}
+
+export function getGame(gameId: string): E.Either<string, Game> {
+  return E.fromNullable("No game found")(games.get(gameId));
+}
+
 export function ping(): E.Either<string, string> {
   return E.right("pong");
 }
@@ -70,6 +80,8 @@ export function handleRequest(
       return deductPoints(command.data, context);
     case Command.SET_POINTS:
       return setPoints(command.data, context);
+    case Command.GET_GAME:
+      return E.right(game);
     case Command.PRINT_GAME:
       return print(command);
     default:

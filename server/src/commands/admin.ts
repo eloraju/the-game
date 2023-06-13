@@ -1,7 +1,6 @@
 import {
   type AddPointsData,
   type Context,
-  type CreateGameCommand,
   type Game,
   type GameMap,
   GameState,
@@ -12,7 +11,7 @@ import * as E from "fp-ts/lib/Either.js";
 import { getSortedPoints } from "./helpers.js";
 
 export function createGame(
-  { gameId }: CreateGameCommand,
+  gameId: string,
   socketId: string,
   games: GameMap
 ): E.Either<string, string> {
@@ -31,12 +30,18 @@ export function createGame(
 }
 
 export function startGame({ game }: Context): E.Either<string, string> {
-  game.state = GameState.IN_PROGRESS;
+  game.state = GameState.ACCEPTING_BUZZEZ;
   return E.right("game started!");
+}
+
+export function endGame({ game }: Context): E.Either<string, string> {
+  game.state = GameState.ENDED;
+  return E.right("game ended!");
 }
 
 export function resetBuzzers({ game }: Context): E.Either<string, string[]> {
   game.buzzList.clear();
+  game.state = GameState.ACCEPTING_BUZZEZ;
 
   return E.right([]);
 }

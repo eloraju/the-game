@@ -1,26 +1,25 @@
 <script lang="ts">
-	import { client, points } from '$lib/stores/socketStore';
+	import { client, gameData, currentGame } from '$lib/stores/socketStore';
 	import buzz from '$lib/assets/buzzer.wav';
-	import type { Player, PointsData } from 'server/src/types/types';
+	import { GameState, type UpdateForUI } from 'server/src/types/types';
 	import { onMount } from 'svelte';
 
 	let role: string;
-	let pointList: PointsData[] = [];
-	let buzzList: Player[] = [];
+	let game: UpdateForUI;
+	let buzzAudio: HTMLAudioElement;
+
+	gameData.subscribe((g) => (game = g));
 
 	client.onRoleReceived((r) => (role = r));
-	points.subscribe((p) => (pointList = p));
 
 	onMount(() => {
-		let buzzer = new Audio(buzz);
-		client.onBuzzerFired((buzzed) => {
-			if (buzzed.length > 0) {
-				buzzer.volume = 1;
-				buzzer.play();
-			}
-			buzzList = buzzed;
-		});
+		buzzAudio = new Audio(buzz);
 	});
+
+	function buzzer() {
+		client.buzz();
+		buzzAudio.play();
+	}
 
 	function createGame() {
 		client.createGame(gameId);
@@ -28,10 +27,6 @@
 
 	function joinGame() {
 		client.joinGame(gameId, player);
-	}
-
-	function printGame() {
-		client.printGame();
 	}
 
 	let gameId: string;
@@ -64,10 +59,11 @@
 			>Join game</button
 		>
 	{:else if role === 'admin'}
-		<p>you be an admin now :)</p>
-		<button class="btn" on:click={printGame}>Print game</button>
-		<button class="btn" on:click={client.startGame}>Start game</button>
-		<button class="btn" on:click={client.resetBuzzer}>Reset buzzers</button>
+		{#if game.state == GameState.LOBBY}
+			<button class="btn" on:click={client.startGame}>Start game</button>
+		{/if}
+		<button class="btn" on:click={client.resetBuzzers}>Reset buzzers</button>
+		<button class="btn btn-error" on:click={client.endGame}>End game</button>
 		<div class="flex flex-row gap-2 items-stretch">
 			<div class="overflow-x-auto">
 				<table class="table flex-1">
@@ -80,8 +76,8 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#if pointList && pointList.length > 0}
-							{#each pointList as playerPoints, index}
+						{#if game && game.points && game.points.length > 0}
+							{#each game.points as playerPoints, index}
 								<tr>
 									<th>{index + 1}</th>
 									<td>{playerPoints.player}</td>
@@ -112,8 +108,8 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#if buzzList && buzzList.length > 0}
-							{#each buzzList as player, index}
+						{#if game.buzzList && game.buzzList.length > 0}
+							{#each game.buzzList as player, index}
 								<tr>
 									<th>{index + 1}</th>
 									<td>{player}</td>
@@ -125,9 +121,22 @@
 			</div>
 		</div>
 	{:else if role === 'player'}
-		<p>player you are :)</p>
-		<button class="btn" on:click={printGame}>Print game</button>
-		<button class="btn" on:click={client.buzz}>BUZZ!</button>
+		{#if game.state == GameState.ENDED}
+			<p>Game ended! Winner: {game.points.at(0)?.player}</p>
+		{:else}
+			<p>Points: {game.points.find((p) => p.player === currentGame.player)?.points}</p>
+			{#if game.state == GameState.ACCEPTING_BUZZEZ}
+				<button class="btn btn-circle btn-error btn-lg w-80 h-80" on:click={buzzer}>BUZZ!</button>
+			{:else if game.state == GameState.LOBBY}
+				<h1>Waiting for the game to start</h1>
+			{:else}
+				<h1 class="text-lg font-bold">
+					{game.buzzList.includes(currentGame.player)
+						? "You're up!"
+						: `Too slow! ${game.buzzList.at(0)} has the floor!`}
+				</h1>
+			{/if}
+		{/if}
 	{:else}
 		<p>it borked</p>
 	{/if}

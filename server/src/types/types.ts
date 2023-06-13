@@ -15,7 +15,9 @@ export enum Command {
   DEDUCT_POINTS,
   SET_POINTS,
   START_GAME,
-  GET_GAME
+  GET_GAME,
+  END_GAME
+
 }
 
 export enum Event {
@@ -25,14 +27,14 @@ export enum Event {
 
 export enum GameState {
   LOBBY, // waiting for players to join
-  IN_PROGRESS, // Prompting and buzzing
+  ACCEPTING_BUZZEZ, // Prompting and buzzing
+  BUZZ_STOP,
   ENDED,
 }
 
 export type Player = string;
 
 export interface Response {
-  ack: number;
   data: any;
   err: boolean;
 }
@@ -46,12 +48,27 @@ export interface Game {
   adminSocketId: string;
 }
 
+export interface SocketQueryData {
+  gameId: string;
+  name: Player;
+  cmd: Command.CREATE_GAME | Command.JOIN_GAME;
+}
+
+export interface UpdateForUI {
+  gameId: string;
+  state: GameState;
+  players: Array<Player>;
+  buzzList: Array<Player>;
+  points: Array<PointsData>;
+  cmd: Command
+}
+
 export type GameMap = Map<string, Game>;
 
 export interface Context {
-  adminSocket: Socket;
-  connections: Map<string, Socket>;
   game: Game;
+  adminSocket?: Socket;
+  connections: Map<string, Socket>;
   socketId: string;
 }
 
@@ -85,7 +102,6 @@ export interface SetPointsData {
 
 interface ICommand<T> {
   cmd: Command;
-  ack: number;
   gameId: string;
   data: T;
 }
@@ -97,7 +113,11 @@ export interface CreateGameCommand extends ICommandNoData {
 }
 export interface GetGameCommand extends ICommandNoData {
   cmd: Command.GET_GAME;
+} 
+export interface EndGameCommand extends ICommandNoData {
+  cmd: Command.END_GAME;
 }
+
 export interface JoinGameCommand extends ICommand<JoinGameData> {
   cmd: Command.JOIN_GAME;
 }
@@ -166,7 +186,9 @@ export type RpcCommand =
   | SetPointsCommand
   | StartCommand
   | PrintCommand
-  | GetGameCommand;
+  | GetGameCommand
+  | EndGameCommand;
+
 
 export type RpcCommandData =
   | JoinGameData

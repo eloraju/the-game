@@ -4,3 +4,4 @@ services:
     image: the-game:latest
     ports:
       - "4324:3000"
+    container_name: the-game

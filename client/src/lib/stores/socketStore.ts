@@ -65,7 +65,6 @@ export function openSocket(
 }
 
 function emit(command: RpcCommand, handler: (res: Response) => void = noop) {
-	// This increments the ack for the next round
 	console.log('REQUEST:', JSON.stringify(command));
 	socketClient
 		.timeout(3 * 1000)
@@ -130,6 +129,11 @@ function getGame(gameId: string) {
 function endGame() {
 	const req: EndGameCommand = { cmd: Command.END_GAME, gameId: currentGame.gameId };
 	emit(req);
+}
+
+function getGame(gameId: string) {
+	const req: GetGameCommand = {ack, cmd: Command.GET_GAME, gameId};
+	emit(req, res => gameData.set(res.data));
 }
 
 export const client = {

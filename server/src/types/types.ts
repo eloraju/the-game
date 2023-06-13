@@ -17,6 +17,7 @@ export enum Command {
   START_GAME,
   GET_GAME,
   END_GAME
+
 }
 
 export enum Event {
@@ -112,10 +113,11 @@ export interface CreateGameCommand extends ICommandNoData {
 }
 export interface GetGameCommand extends ICommandNoData {
   cmd: Command.GET_GAME;
-}
+} 
 export interface EndGameCommand extends ICommandNoData {
   cmd: Command.END_GAME;
 }
+
 export interface JoinGameCommand extends ICommand<JoinGameData> {
   cmd: Command.JOIN_GAME;
 }
@@ -186,6 +188,7 @@ export type RpcCommand =
   | PrintCommand
   | GetGameCommand
   | EndGameCommand;
+
 
 export type RpcCommandData =
   | JoinGameData
